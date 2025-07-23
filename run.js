@@ -34,7 +34,7 @@ function clickEvent(event){
     drawCircle(canvas, color);
     BigArr[row][col] = current;
   }
-  console.log( row,col )
+//   console.log( row,col )
   isTurn = !isTurn
   return current
 }
@@ -112,7 +112,7 @@ function diagonalCheck(event) {
             count1 = 1;
         }
     }
-    console.log(clone,count,clone1,count1)
+    // console.log(clone,count,clone1,count1)
     return count >= 5 || count1 >= 5;
 
   }
