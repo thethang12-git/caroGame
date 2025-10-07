@@ -16,7 +16,7 @@ creatCell();
 for (let a = 0; a < 10; a++){
   tablee += '<tr>'
   for (let b = 0; b < 10; b++ ){
-    tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);check();computerTurn()">   ${BigArr[a][b]} </td>`;
+    tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);check(event);computerTurn()">   ${BigArr[a][b]} </td>`;
   }
   tablee += '</tr>'
 }
@@ -28,14 +28,14 @@ function clickEvent(event){
   let row = event.currentTarget.getAttribute('data-row');
   let col = event.currentTarget.getAttribute('data-col');
   let current = 'X'   ;
-  // if(BigArr[row][col] !== ''){return}
+  if(BigArr[row][col] !== ''){return}
     if (event.currentTarget.innerText === '' && !isTurn){
     event.currentTarget.innerHTML = '<canvas width="50" height="50"></canvas>';
     const canvas = event.currentTarget.querySelector('canvas');
     const color = 'black' ;
     drawCircle(canvas, color);
     BigArr[row][col] = current;
-    // isTurn = true
+    isTurn = true
     userTurnChoose = {
       row :row,
       col :col
@@ -44,11 +44,6 @@ function clickEvent(event){
   // console.log( userTurnChoose,BigArr)
 
 }
-
-        // userRow - 1[userCol -1,userCol,userCol + 1]
-        // userRow [userCol -1,userCol + 1]
-        // userRow +1[userCol -1,userCol,userCol + 1]
-        // console.log(topLeft,topMiddle,topRight,centerLeft,centerRight,bottomLeft,bottomCenter,bottomRight)
 
 // function computerTurn (){
 //   // bắt đầu soát 1 lượt từ chiều dọc tới chiều ngang của ô mà user vừa đánh
@@ -445,24 +440,30 @@ function clickEvent(event){
 //   }
 // }
 
+
+
+// 
 let rowHanleAfter 
-function rowHandle(value,length) {
+function rowHandle(value,length,otherValue) {
   for(let row = 0;row < BigArr.length; row++){
       // rowHanleAfter =[]
       // let allowEmpty = 0
       for(let col = 0;col <= BigArr[row].length - length;col++){
         let arr = BigArr[row].slice(col,col + length)
-        let filteredEmpty = arr.filter(itm => itm !== value)
+        // đằng trước có giá trị Y rồi thì dừng, k cần chặn nữa
+        if ((col - 1 >= 0 && BigArr[row][col - 1] === otherValue) || (BigArr[row][col + length] === otherValue && col + length < BigArr[row].length)){
+          continue
+        }
+        let filteredEmpty = arr.filter(itm => itm == '')
         let filterItem = arr.filter (itm => itm === value)
         if(filteredEmpty.length !== 1  || filterItem.length !== length - 1){
           continue
         }
-        
         rowHanleAfter = {
           row:row,
           col: col + Number(arr.indexOf('')),
           // index : arr.indexOf(''),
-          // array : []
+          array : arr
         }
         // arr.forEach((itm,num) => {
         //   rowHanleAfter.array.push(col + num)
@@ -472,7 +473,7 @@ function rowHandle(value,length) {
   }
 }
 let colHandlerAfter
-function colHandler(value,length) {
+function colHandler(value,length,otherValue) {
   for(let col = 0;col < BigArr[0].length;col++){
     let cloneArr = []
     for(let i = 0;i < BigArr.length; i ++){
@@ -480,7 +481,14 @@ function colHandler(value,length) {
       }
     for(let row = 0;row <= BigArr.length - length;row++ ) {
       let arr = cloneArr.slice(row,row + length)
-      let filteredEmpty = arr.filter(itm => itm !== value)
+      // xử lý nếu đằng trước hoặc sau đã có giá trị
+      // 
+      if((row - 1 >= 0 && cloneArr[row - 1] === otherValue) || (row+length <= cloneArr.length && cloneArr[row + length ] === otherValue)){
+          continue
+        }
+      // 
+
+      let filteredEmpty = arr.filter(itm => itm == '')
       let filterItem = arr.filter (itm => itm === value)
       if(filteredEmpty.length !== 1  || filterItem.length !== length - 1){
           continue
@@ -489,7 +497,7 @@ function colHandler(value,length) {
           col:col,
           row: row + Number(arr.indexOf('')), 
           // index : arr.indexOf(''),
-          // array : []
+          array : arr
         }
         // arr.forEach((itm,num) => {
         //   colHandlerAfter.array.push(row + num)
@@ -500,7 +508,7 @@ function colHandler(value,length) {
 }
 // chéo từ trái qua phải, trên xuống dưới
 let diagoLToRAfter
-function diagoLToR(value,length){
+function diagoLToR(value,length,otherValue){
   for(let row = 0;row < BigArr.length ;row++){
     for (let col = 0 ;col <= BigArr.length;col++) {
       let cloneDiago = []
@@ -509,8 +517,16 @@ function diagoLToR(value,length){
         cloneDiago.push(BigArr[row + i][col +i])
       }
       if(cloneDiago.length < length) {continue}
-      let arr = cloneDiago.slice(0,length)
-      let filteredEmpty = arr.filter(itm => itm !== value)
+      let arr = cloneDiago.slice(0,length )
+      // 
+      if(length < cloneDiago.length && cloneDiago[length] === otherValue){
+        continue
+      }
+      if (col - 1 >= 0 && row - 1 >= 0 && BigArr[row - 1][col - 1] === otherValue) {
+        continue;
+      }
+      // 
+      let filteredEmpty = arr.filter(itm => itm === '')
       let filterItem = arr.filter (itm => itm === value)
       if(filteredEmpty.length !== 1  || filterItem.length !== length - 1){
           continue
@@ -518,27 +534,40 @@ function diagoLToR(value,length){
         diagoLToRAfter= {
           col:col + Number(arr.indexOf('')),
           row : row + Number(arr.indexOf('')),
+          array : arr,
         }
+        // if ((diagoLToRAfter.col - 1 >= 0 && diagoLToRAfter.row- 1 >= 0 && BigArr[diagoLToRAfter.col - 1][diagoLToRAfter.row - 1] === otherValue ) || (diagoLToRAfter.col + 5 < BigArr.length && diagoLToRAfter.row + 5 < BigArr.length && BigArr[diagoLToRAfter.col +5][diagoLToRAfter.row + 5] === otherValue ))
+        //   {
+        //     continue
+        //   }
         return diagoLToRAfter
     }
   }
 }
 // chéo từ phải qua trái, trên xuống dưới
 let diagoRToLAfter 
-function diagoRToL (value,length) {
+function diagoRToL (value,length,otherValue) {
   for (let row = 0;row < BigArr.length;row++)
   {
     for(let col = BigArr[0].length - 1;col >= 0;col--)
     {
       let cloneDiago2 = []
-      for(let i = 0;i <= BigArr.length;i++)
+      for(let i = 0;i < BigArr.length;i++)
       {
         if(row + i > BigArr.length - 1 || col - i < 0) {break}
         cloneDiago2.push(BigArr[row + i][col - i])
       }
       if(cloneDiago2.length < length) {continue}
       let arr = cloneDiago2.slice(0,length)
-      let filteredEmpty = arr.filter(itm => itm !== value)
+      // 
+      if(length < cloneDiago2.length && cloneDiago2[length] === otherValue){
+        continue
+      }
+      if (row - 1 >= 0 && col + 1 < BigArr[0].length && BigArr[row - 1][col + 1] === otherValue) {
+        continue;
+      }
+      
+      let filteredEmpty = arr.filter(itm => itm == '')
       let filterItem = arr.filter (itm => itm === value)
       if(filteredEmpty.length !== 1  || filterItem.length !== length - 1){
           continue
@@ -547,35 +576,70 @@ function diagoRToL (value,length) {
         diagoRToLAfter = {
           col:col - Number(arr.indexOf('')),
           row : row + Number(arr.indexOf('')),
+          array : arr,
         }
         return diagoRToLAfter
     }
   }
   return false
 }
-function computerTurn () {
-    // console.log(rowHandle('X',5),rowHanleAfter)
-    // console.log(colHandler('X',5),colHandlerAfter)
-    // console.log(diagoLToR('X',5),diagoLToRAfter)
-    // console.log(diagoRToL('X',5),diagoRToLAfter)
-    let listFind = [rowHandle('X',5),colHandler('X',5),diagoLToR('X',5),diagoRToL('X',5)];
-    let computerTurn
-    for (let i = 0; i < listFind.length; i++) {
-      if (listFind[i]) {
-        computerTurn = listFind[i];
-        break;
-      }
+// 
+ 
+function findWinning(value,length,otherValue) {
+  let arr = [rowHandle(value,length,otherValue),colHandler(value,length,otherValue),diagoLToR(value,length,otherValue),diagoRToL(value,length,otherValue)];
+  for (let i = 0; i < arr.length; i++) {
+        if(arr[i]){
+          let AiTurn = arr[i]
+          return AiTurn
+        }
     }
-    console.log(computerTurn)
-    if (isTurn){
-    // let element = document.querySelector(`[data-col="${computerTurn.col}"][data-row="${computerTurn.row}"]`);
-    // element.innerHTML = '<canvas width="50" height="50"></canvas>';
-    // const canvas = element.querySelector('canvas');
-    // const color = 'white';
-    // drawCircle(canvas, color);
-    // BigArr[computerTurn.row][computerTurn.col] = 'Y';
-    // isTurn = false
-    // console.log('running')
+}
+
+function findWinningFirst() {
+  for (let i = 4; i <= 5; i++){
+    let AiFind = findWinning('Y', i ,'X')
+    if(AiFind) 
+      return AiFind
+  }
+  return null
+}
+
+
+let cloneArrHandle
+function listFindRunning() {
+  let isWinning = findWinningFirst()
+  if(isWinning) return isWinning
+  cloneArrHandle = []
+  for(let i = 5; i >= 2;i --){
+    let arr = [rowHandle('X',i,'Y'),colHandler('X',i,'Y'),diagoLToR('X',i,'Y'),diagoRToL('X',i,'Y')];
+    arr.forEach(element => {
+      if(element){
+        cloneArrHandle.push(element)
+      }
+    }); }
+    if(cloneArrHandle.length === 0) return null
+    let AiTurn = cloneArrHandle[0]
+    let countX = AiTurn.array.filter(itm => itm === 'X').length
+    cloneArrHandle.forEach (itm => {
+    let countItem = itm.array.filter(item => item === 'X').length
+    if(countItem > countX){
+      AiTurn = itm
+    }
+  })
+  return AiTurn
+}
+
+  function computerTurn () {
+    let AiTurn = listFindRunning()
+    console.log(BigArr)
+    if(AiTurn && isTurn){
+    let element = document.querySelector(`[data-col="${AiTurn.col}"][data-row="${AiTurn.row}"]`);
+    element.innerHTML = '<canvas width="50" height="50"></canvas>';
+    const canvas = element.querySelector('canvas');
+    const color = 'white';
+    drawCircle(canvas, color);
+    BigArr[AiTurn.row][AiTurn.col] = 'Y';
+    isTurn = false
     }
 }
 function rowCheck(){
@@ -680,8 +744,6 @@ function test4(event){
   return clone
 }
 
-
-
 function drawCircle(canvas, color) {
     const ctx = canvas.getContext('2d');
     const radius = (Math.min(canvas.width, canvas.height) - 4) / 2;
@@ -698,15 +760,18 @@ function reset() {
     BigArr = [];
     tablee = '';
     val = '';
-    isTurn = true;
+    isTurn = false;
     current = null;
-
+    rowHanleAfter = null;
+    diagoLToRAfter = null;
+    colHandlerAfter = null;
+    diagoRToLAfter = null;
     creatCell()
 
     for (let a = 0; a < 10; a++) {
         tablee += '<tr>';
         for (let b = 0; b < 10; b++) {
-            tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);check()"> </td>`;
+            tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);check();computerTurn()"> </td>`;
         }
         tablee += '</tr>';
     }
@@ -721,8 +786,8 @@ function checkWin(){
     return false
 }
 
-function check(){
-    if (checkWin()){current = !current ; alert(`${current = isTurn ? 'white' : 'black'} thắng`)
+function check(event){
+    if (checkWin(event)){current = !current ; alert(`${current = isTurn ? 'white' : 'black'} thắng`)
         if (confirm(' muốn chơi lại không  ')){
             reset()
         }
