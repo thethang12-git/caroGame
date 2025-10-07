@@ -2,7 +2,7 @@ let tablee = ''
 let BigArr = []
 let val =  '';
 let isTurn 
-let current;
+let InputValue;
 function creatCell(){
   for (let x = 0; x < 10; x++){
     let arr = []
@@ -27,14 +27,14 @@ let userTurnChoose
 function clickEvent(event){
   let row = event.currentTarget.getAttribute('data-row');
   let col = event.currentTarget.getAttribute('data-col');
-  let current = 'X'   ;
+  InputValue = 'X'   ;
   if(BigArr[row][col] !== ''){return}
     if (event.currentTarget.innerText === '' && !isTurn){
     event.currentTarget.innerHTML = '<canvas width="50" height="50"></canvas>';
     const canvas = event.currentTarget.querySelector('canvas');
     const color = 'black' ;
     drawCircle(canvas, color);
-    BigArr[row][col] = current;
+    BigArr[row][col] = InputValue;
     isTurn = true
     userTurnChoose = {
       row :row,
@@ -596,7 +596,7 @@ function findWinning(value,length,otherValue) {
 }
 
 function findWinningFirst() {
-  for (let i = 4; i <= 5; i++){
+  for (let i = 3; i <= 5; i++){
     let AiFind = findWinning('Y', i ,'X')
     if(AiFind) 
       return AiFind
@@ -631,14 +631,14 @@ function listFindRunning() {
 
   function computerTurn () {
     let AiTurn = listFindRunning()
-    console.log(BigArr)
     if(AiTurn && isTurn){
     let element = document.querySelector(`[data-col="${AiTurn.col}"][data-row="${AiTurn.row}"]`);
     element.innerHTML = '<canvas width="50" height="50"></canvas>';
     const canvas = element.querySelector('canvas');
     const color = 'white';
     drawCircle(canvas, color);
-    BigArr[AiTurn.row][AiTurn.col] = 'Y';
+    InputValue = 'Y'
+    BigArr[AiTurn.row][AiTurn.col] = InputValue;
     isTurn = false
     }
 }
@@ -650,74 +650,88 @@ function rowCheck(){
         if (newArr[x] !== '' && newArr[x] === newArr[x+1]){
             if(clone.length === 0){clone.push(newArr[x])}
             clone.push(newArr[x+1]);
-            if (clone.length === 5){break}
+            if (clone.length === 4){break}
         }
         else if(newArr[x] !== newArr[x+1]){
             clone = []
         }
     }
-    if (clone.length === 5){
+    if (clone.length === 4){
         return true
     }
 }
 
-function colCheck(){
-    let CloneCol = []
-  for (let x = 0; x < 10; x++) {
-    let Clonearr = []
-    CloneCol.push(Clonearr)
-    for (let y = 0; y < 10; y++) {
-      Clonearr.push(BigArr[y][x])
-    }
-  }
-    let newArr = CloneCol.flat()
-    for (let x = 10; x < newArr.length; x += 11){newArr.splice(x,0,',')}
-    let clone = []
-    for(let x = 0;x < newArr.length; x++){
-        if (newArr[x] !== '' && newArr[x] === newArr[x+1]){
-            if(clone.length === 0){clone.push(newArr[x])}
-            clone.push(newArr[x+1]);
-            if (clone.length === 5){break}
-        }
-        else if(newArr[x] !== newArr[x+1]){
-            clone = []
-        }
-    }
-    if (clone.length === 5){
-        return true
-    }
-}
+function colCheck() {
+  const size = BigArr.length;
+  for (let col = 0; col < size; col++) {
+    let count = 0;
 
-function diagonalCheck(event) {
-    let count = 1
-    let count1 = 1
-    let clone = test3(event)
-    for (let x = 0;x < clone.length -1;x++ ){
-      if (clone[x] !== '' && clone[x] === clone[x + 1]) {
-      count++;
-      if (count >= 5) {
-        break;
-  }
-      } 
-      else {
-        count = 1;
+    for (let row = 0; row < size; row++) {
+      if (BigArr[row][col] === InputValue) {
+        count++;
+        if (count === 5) {
+          return true;
+        }
+      } else {
+        count = 0;
       }
     }
-    let clone1 = test4(event)
-    for (let x = 0;x < clone1.length -1;x++ ){
-        if (clone1[x] !== '' && clone1[x] === clone1[x + 1]) {
-            count1++;
-            if (count1 >= 5) {
-                break;
-            }
-        }
-        else {
-            count1 = 1;
-        }
-    }
-    return count >= 5 || count1 >= 5;
-
   }
+
+  return false;
+}
+
+function diagonalCheck() {
+  const size = BigArr.length;
+
+  for (let row = 0; row <= size - 5; row++) {
+    for (let col = 0; col <= size - 5; col++) {
+      let isWinning = true;
+
+      for (let i = 0; i < 5; i++) {
+        if (BigArr[row + i][col + i] !== 'X') {
+          isWinning = false;
+          break;
+        }
+      }
+      if (isWinning) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// function diagonalCheck(event) {
+//     let count = 1
+//     let count1 = 1
+//     let clone = test3(event)
+//     for (let x = 0;x < clone.length -1;x++ ){
+//       if (clone[x] !== '' && clone[x] === clone[x + 1]) {
+//       count++;
+//       if (count >= 5) {
+//         break;
+//   }
+//       } 
+//       else {
+//         count = 1;
+//       }
+//     }
+//     let clone1 = test4(event)
+//     for (let x = 0;x < clone1.length -1;x++ ){
+//         if (clone1[x] !== '' && clone1[x] === clone1[x + 1]) {
+//             count1++;
+//             if (count1 >= 5) {
+//                 break;
+//             }
+//         }
+//         else {
+//             count1 = 1;
+//         }
+//     }
+//     return count >= 5 || count1 >= 5;
+
+//   }
 
 function test3(event){
   let row = parseInt(event.target.getAttribute('data-row'));
@@ -782,12 +796,12 @@ function reset() {
 function checkWin(){
     if(rowCheck()){return true}
     if(colCheck()){return true}
-    if(diagonalCheck(event)){return true}
+    if(diagonalCheck()){return true}
     return false
 }
 
 function check(event){
-    if (checkWin(event)){current = !current ; alert(`${current = isTurn ? 'white' : 'black'} thắng`)
+    if (checkWin(event)){alert(`${isTurn ? 'white' : 'black'} thắng`)
         if (confirm(' muốn chơi lại không  ')){
             reset()
         }
