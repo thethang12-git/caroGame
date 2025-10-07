@@ -16,7 +16,7 @@ creatCell();
 for (let a = 0; a < 10; a++){
   tablee += '<tr>'
   for (let b = 0; b < 10; b++ ){
-    tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);computerTurn()">   ${BigArr[a][b]} </td>`;
+    tablee += `<td data-row="${a}" data-col="${b}" onclick="clickEvent(event);check();computerTurn()">   ${BigArr[a][b]} </td>`;
   }
   tablee += '</tr>'
 }
@@ -467,7 +467,7 @@ function rowHandle(value,length) {
         // arr.forEach((itm,num) => {
         //   rowHanleAfter.array.push(col + num)
         //   })
-        return true
+        return rowHanleAfter
       }    
   }
 }
@@ -494,10 +494,11 @@ function colHandler(value,length) {
         // arr.forEach((itm,num) => {
         //   colHandlerAfter.array.push(row + num)
         //   })
-        // return true
+        return colHandlerAfter
     }
   }
 }
+// chéo từ trái qua phải, trên xuống dưới
 let diagoLToRAfter
 function diagoLToR(value,length){
   for(let row = 0;row < BigArr.length ;row++){
@@ -518,15 +519,64 @@ function diagoLToR(value,length){
           col:col + Number(arr.indexOf('')),
           row : row + Number(arr.indexOf('')),
         }
-        return true
+        return diagoLToRAfter
     }
   }
+}
+// chéo từ phải qua trái, trên xuống dưới
+let diagoRToLAfter 
+function diagoRToL (value,length) {
+  for (let row = 0;row < BigArr.length;row++)
+  {
+    for(let col = BigArr[0].length - 1;col >= 0;col--)
+    {
+      let cloneDiago2 = []
+      for(let i = 0;i <= BigArr.length;i++)
+      {
+        if(row + i > BigArr.length - 1 || col - i < 0) {break}
+        cloneDiago2.push(BigArr[row + i][col - i])
+      }
+      if(cloneDiago2.length < length) {continue}
+      let arr = cloneDiago2.slice(0,length)
+      let filteredEmpty = arr.filter(itm => itm !== value)
+      let filterItem = arr.filter (itm => itm === value)
+      if(filteredEmpty.length !== 1  || filterItem.length !== length - 1){
+          continue
+        }
+
+        diagoRToLAfter = {
+          col:col - Number(arr.indexOf('')),
+          row : row + Number(arr.indexOf('')),
+        }
+        return diagoRToLAfter
+    }
+  }
+  return false
 }
 function computerTurn () {
     // console.log(rowHandle('X',5),rowHanleAfter)
     // console.log(colHandler('X',5),colHandlerAfter)
-    // console.log(diagoLToR('X',4),diagoLToRAfter)
-    console.log(userTurnChoose.row,userTurnChoose.col)
+    // console.log(diagoLToR('X',5),diagoLToRAfter)
+    // console.log(diagoRToL('X',5),diagoRToLAfter)
+    let listFind = [rowHandle('X',5),colHandler('X',5),diagoLToR('X',5),diagoRToL('X',5)];
+    let computerTurn
+    for (let i = 0; i < listFind.length; i++) {
+      if (listFind[i]) {
+        computerTurn = listFind[i];
+        break;
+      }
+    }
+    console.log(computerTurn)
+    if (isTurn){
+    // let element = document.querySelector(`[data-col="${computerTurn.col}"][data-row="${computerTurn.row}"]`);
+    // element.innerHTML = '<canvas width="50" height="50"></canvas>';
+    // const canvas = element.querySelector('canvas');
+    // const color = 'white';
+    // drawCircle(canvas, color);
+    // BigArr[computerTurn.row][computerTurn.col] = 'Y';
+    // isTurn = false
+    // console.log('running')
+    }
 }
 function rowCheck(){
     let newArr = BigArr.flat()
