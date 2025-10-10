@@ -596,7 +596,7 @@ function findWinning(value,length,otherValue) {
 }
 
 function findWinningFirst() {
-  for (let i = 3; i <= 5; i++){
+  for (let i = 5; i >= 4; i--){
     let AiFind = findWinning('Y', i ,'X')
     if(AiFind) 
       return AiFind
