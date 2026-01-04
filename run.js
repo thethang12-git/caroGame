@@ -43,7 +43,6 @@ function clickEvent(event){
     }
   }
 console.log('user vừa đánh : ' , userTurnChoose,isTurn);
-
 }
 
 let rowHanleAfter 
@@ -367,10 +366,10 @@ function check(row,col){
             reset()
         }
         else {
-            document.getElementById('table').style.pointerEvents = 'none'
+          document.getElementById('table').style.pointerEvents = 'none'
         }
     }
-    if(BigArr.flat().every(value => value !== "")){
+    else if(BigArr.flat().every(value => value !== "")){
         alert('hoà rồi!!!!!');
         if (confirm(' muốn chơi lại không  ')){
             reset()
@@ -379,4 +378,5 @@ function check(row,col){
             document.getElementById('table').style.pointerEvents = 'none'
         }
     }
+    else { return false }
 }
